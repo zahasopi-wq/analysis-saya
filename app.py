@@ -2,7 +2,6 @@ import streamlit as st
 from streamlit_drawable_canvas import st_canvas
 from PIL import Image
 import io
-import numpy as np
 
 st.set_page_config(
     page_title="🎨 Ruang Lukis & Analisis",
@@ -13,16 +12,16 @@ st.set_page_config(
 st.title("🎨 Ruang Lukis & Analisis Saya")
 st.markdown("---")
 
-# Bahagian 1: Gambar Lama
-st.subheader("📊 Gambar / Carta Asal")
-gambar_lama = st.file_uploader("Muat naik gambar asal", type=['png','jpg','jpeg'], key="lama")
+# Bahagian 1: Gambar Rujukan
+st.subheader("📊 Gambar / Carta Rujukan")
+gambar_lama = st.file_uploader("Muat naik gambar rujukan", type=['png','jpg','jpeg'], key="lama")
 if gambar_lama:
-    st.image(gambar_lama, use_container_width=True)
+    st.image(gambar_lama, caption="Gambar Rujukan — Lukis di bawah ikut ini", use_container_width=True)
 
 st.markdown("---")
 
-# Bahagian 2: Kanvas Lukis
-st.subheader("✏️ Sedang Dilukis")
+# Bahagian 2: Kanvas Lukis Kosong
+st.subheader("✏️ Lukis Di Sini")
 
 drawing_mode = st.selectbox(
     "Alat lukis:",
@@ -36,9 +35,7 @@ with col1:
 with col2:
     warna_pen = st.color_picker("Warna pen:", "#FF0000")
 
-# Butang padam lukis
-if st.button("🗑️ Padam Semua Lukisan", use_container_width=True):
-    st.rerun()
+st.info("💡 Lukis terus di atas kanvas putih ini")
 
 canvas_result = st_canvas(
     stroke_width=lebar_pen,
@@ -49,38 +46,12 @@ canvas_result = st_canvas(
     key="canvas_lukis"
 )
 
-# Simpan hasil — diperbaiki
-if canvas_result.image_data is not None:
-    # Semak jika ada lukisan (bukan kosong)
-    if not np.all(canvas_result.image_data == 255):
-        st.markdown("---")
-        st.subheader("💾 Simpan Hasil")
-        
-        img = Image.fromarray(canvas_result.image_data.astype('uint8'), 'RGBA')
-        buf = io.BytesIO()
-        img.save(buf, format="PNG")
-        byte_im = buf.getvalue()
-        
-        butang1, butang2 = st.columns(2)
-        with butang1:
-            st.download_button(
-                label="💾 Simpan ke Telefon",
-                data=byte_im,
-                file_name="hasil_lukis.png",
-                mime="image/png",
-                use_container_width=True
-            )
-        with butang2:
-            st.link_button("📤 Hantar ke WhatsApp", "https://wa.me/?text=Lihat hasil analisis saya!", use_container_width=True)
-    else:
-        st.info("✏️ Lukis sesuatu dahulu sebelum simpan")
-
 st.markdown("---")
 
 # Bahagian 3: Catatan
 st.subheader("💬 Catatan")
-catatan = st.text_area("Tulis apa yang anda perhatikan:", height=120, 
-                       placeholder="Contoh: Apa beza kedua-dua carta ini? Apa perubahan penting...")
+catatan = st.text_area("Tulis apa yang anda perhatikan:", height=120,
+                       placeholder="Contoh: Bandingkan gambar di atas dengan lukisan saya di bawah...")
 
 if st.button("✅ Simpan Catatan", type="primary", use_container_width=True):
     st.success("✅ Catatan disimpan!")
